@@ -1,308 +1,67 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SEAF Settings</title>
-  <style>
-    :root {
-      /* 기본 테마 색상 */
-      --bg-main: #f0f0f0;         /* 전체 배경 (어두운 색상으로 변경) */
-      --bg-container: #2b2d31;    /* 섹션 배경 */
-      --bg-input: #d0d0d0;        /* 입력창 배경 */
-      --bg-card: #e9e9f0;         /* 버튼 및 카드 배경 */
-      
-      /* 포인트 색상 */
-      --color-primary: #41639C;   /* 헬다이버즈 블루 */
-      --color-primary-dim: rgba(65, 99, 156, 0.2);
-      --color-text: #f1f1f1;      /* 기본 텍스트 */
-      --color-text-dim: #1e1f21;     /* 보조 텍스트 */
-      --color-border: #4f545c;    /* 경계선 색상 */
-      
-      /* 수치 */
-      --radius: 4px;
-    }
-
-    body {
-      width: 340px;
-      padding: 0;
-      background-color: var(--bg-main);
-      color: var(--color-text);
-      font-family: "Segoe UI", "Roboto", "Arial", sans-serif;
-      margin: 0;
-      overflow-x: hidden;
-    }
-
-    .header-banner {
-      background: var(--color-primary);
-      color: #ffffff;
-      padding: 10px 16px;
-      font-weight: 700;
-      font-size: 16px;
-      letter-spacing: 2px;
-      text-align: center;
-      text-transform: uppercase;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-    }
-
-    .container {
-      padding: 16px;
-      max-height: 520px;
-      overflow-y: auto;
-      background: var(--bg-main);
-    }
-
-    .section {
-      margin-bottom: 24px;
-    }
-
-    h3 {
-      font-size: 11px;
-      margin: 0 0 12px 0;
-      color: var(--color-primary);
-      text-transform: uppercase;
-      letter-spacing: 1.2px;
-      border-left: 3px solid var(--color-primary);
-      padding-left: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    /* 입력 요소 공통 디자인 */
-    input[type="text"], textarea {
-      width: 100%;
-      padding: 10px;
-      background: var(--bg-input);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      color: var(--color-text);
-      box-sizing: border-box;
-      outline: none;
-      font-size: 12px;
-      transition: all 0.2s;
-    }
-
-    input[type="text"]:focus, textarea:focus {
-      border-color: var(--color-primary);
-      background: var(--bg-card);
-    }
-
-    textarea { height: 60px; resize: none; font-family: inherit; }
-
-    /* 그리드 및 버튼 디자인 */
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-
-    .btn {
-      padding: 10px 6px;
-      background: var(--bg-card);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius);
-      color: var(--color-text-dim);
-      cursor: pointer;
-      font-size: 11px;
-      font-weight: bold;
-      text-align: center;
-      transition: all 0.15s ease;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .btn span:first-child { font-size: 18px; filter: grayscale(100%); transition: 0.2s; }
-    .btn:hover { background: var(--bg-input); color: #fff; border-color: #72767d; }
-    .btn.active { border-color: var(--color-primary); background: var(--color-primary-dim); color: var(--color-primary); }
-    .btn.active span:first-child { filter: grayscale(0%); transform: scale(1.1); }
-
-    /* 동적 태그 영역 */
-    #dynamic-area {
-      margin-top: 10px;
-      display: none;
-      background: rgba(0, 0, 0, 0.15);
-      padding: 12px;
-      border-radius: var(--radius);
-      border: 1px dashed var(--color-border);
-    }
-
-    .tag-group { margin-bottom: 12px; }
-    .tag-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-
-    .tag-btn {
-      padding: 5px 10px;
-      background: var(--bg-card);
-      border: 1px solid var(--color-border);
-      border-radius: 20px;
-      font-size: 10px;
-      color: var(--color-text-dim);
-      cursor: pointer;
-    }
-
-    .tag-btn.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
-
-    /* 시스템 설정 아이템 (하단 배치용) */
-    .setting-card {
-      background: var(--bg-card);
-      padding: 12px;
-      border-radius: var(--radius);
-      border: 1px solid var(--color-border);
-    }
-
-    .flex-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-
-    .value-badge {
-      color: var(--color-primary);
-      font-size: 11px;
-      font-weight: bold;
-    }
-
-    /* 슬라이더 커스텀 */
-    input[type="range"] {
-      width: 100%;
-      height: 4px;
-      background: var(--color-border);
-      border-radius: 2px;
-      appearance: none;
-      outline: none;
-    }
-
-    input[type="range"]::-webkit-slider-thumb {
-      appearance: none;
-      width: 14px;
-      height: 14px;
-      background: var(--color-primary);
-      border-radius: 50%;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    /* 스위치 토글 */
-    .switch {
-      position: relative;
-      display: inline-block;
-      width: 32px;
-      height: 18px;
-    }
-
-    .switch input { opacity: 0; width: 0; height: 0; }
-
-    .slider-toggle {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: var(--color-border);
-      transition: .2s;
-      border-radius: 18px;
-    }
-
-    .slider-toggle:before {
-      position: absolute;
-      content: "";
-      height: 12px; width: 12px;
-      left: 3px; bottom: 3px;
-      background-color: white;
-      transition: .2s;
-      border-radius: 50%;
-    }
-
-    input:checked + .slider-toggle { background-color: var(--color-primary); }
-    input:checked + .slider-toggle:before { transform: translateX(14px); }
-
-    /* 버튼 및 푸터 */
-    #save-settings-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--color-primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      font-weight: bold;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: 10px;
-    }
-
-    #save-settings-btn:hover { filter: brightness(1.2); }
-
-    .footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 16px;
-      background: var(--bg-card);
-      border-top: 1px solid var(--color-border);
-    }
-
-    .save-status { font-size: 10px; color: var(--color-primary); font-weight: bold; }
-    .version-info { font-size: 10px; color: #666; }
-
-    .fade-in { animation: seafDeploy 0.2s ease forwards; }
-    @keyframes seafDeploy {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+  <link rel="stylesheet" href="../styles/seaf_main.css">
+  <link rel="stylesheet" href="../styles/tags.css">
 </head>
 <body>
   <div class="header-banner">SEAF ASSISTANT</div>
-
+  
   <div class="container">
-    <!-- 1. 정보 입력 섹션 (상단) -->
+    <!-- Steam Profile Section -->
     <div class="section">
-      <h3>Steam Profile URL</h3>
-      <input type="text" id="steam-url" placeholder="URL을 입력하세요">
+      <h3>Steam Profile</h3>
+      <input type="text" id="steam-url" placeholder="https://steamcommunity.com/id/...">
     </div>
 
+    <!-- Mission Category Section -->
     <div class="section">
-      <h3>Mission Objective</h3>
-      <div class="grid" id="category-grid"></div>
+      <h3>Mission Objects (제목 자동 완성 태그)</h3>
+      <div id="category-grid" class="category-grid"></div>
     </div>
 
-    <div id="dynamic-area" class="section">
+    <!-- Dynamic Options (Difficulty & Special Operations) -->
+    <div id="dynamic-area" class="section" style="display:none;">
       <div class="tag-group" id="difficulty-group">
         <h3>Difficulty Level</h3>
-        <div class="tag-grid" id="difficulty-grid"></div>
+        <div id="difficulty-grid" class="tag-grid"></div>
       </div>
-      <div class="tag-group" id="subtag-group">
-        <h3>Specific Tags</h3>
-        <div class="tag-grid" id="subtag-grid"></div>
+      <div class="tag-group" id="subtag-group" style="margin-top:10px;">
+        <h3>Specific Objects</h3>
+        <div id="subtag-grid" class="tag-grid"></div>
       </div>
     </div>
 
+    <!-- Preview Section -->
     <div class="section">
-      <h3>Mission Details</h3>
-      <input type="text" id="custom-title" placeholder="게시글 제목" style="margin-bottom: 8px;">
-      <textarea id="custom-content" placeholder="추가 전달 사항 (예: 3번 포트 대기중)"></textarea>
+      <h3>Mission Details (선택 사항)</h3>
+      <input type="text" id="custom-title" placeholder="추가 제목">
+      <textarea id="custom-content" placeholder="본문 추가 내용" style="margin-top:8px; height:60px;"></textarea>
     </div>
 
-    <hr style="border: 0; border-top: 1px solid var(--color-border); margin: 20px 0;">
-
-    <!-- 2. 시스템 설정 섹션 (하단 배치) -->
+    <!-- 실시간 감지 컨트롤 섹션 -->
     <div class="section">
-      <h3>Detection System
+      <div class="control-row">
+        <h3>Auto Mangho Detection</h3>
         <label class="switch">
-          <input type="checkbox" id="detection-toggle" checked>
-          <span class="slider-toggle"></span>
+          <input type="checkbox" id="detection-toggle">
+          <span class="slider round"></span>
         </label>
-      </h3>
-      <div class="setting-card">
-        <div class="flex-row">
-          <span style="font-size: 11px; color: var(--color-text-dim);">새 글 감지 주기 (Polling)</span>
-          <span id="polling-value" class="value-badge">5s</span>
-        </div>
-        <input type="range" id="polling-slider" min="1" max="15" value="5">
       </div>
+      <div class="control-row" style="margin-top: 10px;">
+        <span class="label-text">실시간 감지 주기</span>
+        <span id="polling-value" class="value-badge">5s</span>
+      </div>
+      <input type="range" id="polling-slider" min="1" max="30" step="1" value="5" style="margin-top: 5px;">
     </div>
 
-    <div class="save-btn-container">
-      <button id="save-settings-btn">데이터 저장 및 동기화</button>
-    </div>
+    <button id="save-settings-btn" style="width:100%; padding:12px; background:var(--color-primary); color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">SAVE & DEPLOY</button>
   </div>
 
   <div class="footer">
-    <div class="version-info">SYSTEM v1.0.0</div>
-    <div class="save-status" id="save-status"></div>
+    <div class="version-info" id="version-display">SYSTEM v0.0.1b</div>
+    <div id="save-status"></div>
   </div>
 
   <script src="../config.js"></script>

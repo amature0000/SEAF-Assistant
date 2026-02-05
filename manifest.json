@@ -1,17 +1,15 @@
 {
   "manifest_version": 3,
   "name": "SEAF Assistant: 헬다이버즈 시리즈 갤러리 어시스턴트",
-  "version": "0.0.0",
+  "version": "0.0.1b",
   "description": "헬다이버즈 시리즈 갤러리 망호 자동 생성 및 참여, 실시간 알림 지원 확장 프로그램",
   "permissions": [
     "storage",
     "tabs",
-    "notifications",
-    "alarms",
-    "scripting"
+    "notifications"
   ],
   "host_permissions": [
-    "https://gall.dcinside.com/*",
+    "https://gall.dcinside.com/mgallery/board/*id=helldiversseries*",
     "https://steamcommunity.com/id/*",
     "https://steamcommunity.com/profiles/*"
   ],
@@ -24,18 +22,30 @@
   "content_scripts": [
     {
       "matches": [
-        "https://gall.dcinside.com/mgallery/board/lists/*",
-        "https://gall.dcinside.com/mgallery/board/view/*",
-        "https://gall.dcinside.com/mgallery/board/write/*"
+        "https://gall.dcinside.com/mgallery/board/lists/?id=helldiversseries*",
+        "https://gall.dcinside.com/mgallery/board/view/?id=helldiversseries*",
+        "https://gall.dcinside.com/mgallery/board/write/?id=helldiversseries*"
       ],
-      "js": ["config.js", "scripts/content.js"],
-      "css": ["styles/inject.css", "styles/tags.css"]
+      "js": [
+        "config.js", 
+        "scripts/content.js"
+      ],
+      "css": [
+        "styles/seaf_main.css",
+        "styles/tags.css"
+      ]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["utils/steam_parser.js", "config.js"],
-      "matches": ["<all_urls>"]
+      "resources": [
+        "config.js",
+        "styles/seaf_main.css",
+        "styles/tags.css"
+      ],
+      "matches": [
+        "https://gall.dcinside.com/*"
+      ]
     }
   ]
 }
