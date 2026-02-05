@@ -1,29 +1,23 @@
-/**
- * Project SEAF - Popup Logic (Restored Controls)
- */
-
 document.addEventListener('DOMContentLoaded', async () => {
   const versionDisplay = document.getElementById('version-display');
   const steamInput = document.getElementById('steam-url');
   const detectionToggle = document.getElementById('detection-toggle');
   const pollingSlider = document.getElementById('polling-slider');
   const pollingValue = document.getElementById('polling-value');
-  
   const categoryGrid = document.getElementById('category-grid');
   const dynamicArea = document.getElementById('dynamic-area');
   const diffGrid = document.getElementById('difficulty-grid');
   const subtagGrid = document.getElementById('subtag-grid');
-  const diffGroup = diffGrid.parentElement;
-  
+  const diffGroup = document.getElementById('difficulty-group');
   const customTitleInput = document.getElementById('custom-title');
   const customContentInput = document.getElementById('custom-content');
   const saveBtn = document.getElementById('save-settings-btn');
   const statusEl = document.getElementById('save-status');
 
-  // 버전 표시
   const manifestData = chrome.runtime.getManifest();
   versionDisplay.innerText = `SYSTEM v${manifestData.version}`;
 
+  // 1. 초기값 설정 (문제 1 해결)
   let currentSettings = {
     steamUrl: '',
     pollingInterval: 5,
@@ -35,29 +29,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     customContent: ''
   };
 
-  // 기존 설정 로드
   const saved = await chrome.storage.local.get(['seaf_settings']);
   if (saved.seaf_settings) {
     currentSettings = { ...currentSettings, ...saved.seaf_settings };
-    steamInput.value = currentSettings.steamUrl || '';
-    detectionToggle.checked = currentSettings.isDetectionActive !== false;
-    pollingSlider.value = currentSettings.pollingInterval || 5;
-    pollingValue.innerText = `${pollingSlider.value}s`;
-    customContentInput.value = currentSettings.customContent || '';
   }
 
-  // 폴링 슬라이더 이벤트
-  pollingSlider.addEventListener('input', (e) => {
+  // UI 반영
+  steamInput.value = currentSettings.steamUrl || '';
+  detectionToggle.checked = currentSettings.isDetectionActive;
+  pollingSlider.value = currentSettings.pollingInterval;
+  pollingValue.innerText = `${currentSettings.pollingInterval}s`;
+  customContentInput.value = currentSettings.customContent || '';
+
+  // 슬라이더 이벤트
+  pollingSlider.oninput = (e) => {
     pollingValue.innerText = `${e.target.value}s`;
     currentSettings.pollingInterval = parseInt(e.target.value);
-  });
+  };
 
-  // 토글 이벤트
-  detectionToggle.addEventListener('change', (e) => {
-    currentSettings.isDetectionActive = e.target.checked;
-  });
-
-  // 카테고리 버튼 생성
+  // 카테고리 렌더링
   Object.keys(SEAF_CONFIG.CATEGORIES).forEach(key => {
     const c = SEAF_CONFIG.CATEGORIES[key];
     const btn = document.createElement('div');
@@ -70,16 +60,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (currentSettings.category) selectCategory(currentSettings.category);
 
   function selectCategory(key) {
+    // 문제 2 해결: 종족 변경 시 세부 태그 초기화
+    if (currentSettings.category !== key) {
+        currentSettings.subTag = ''; 
+    }
+    
     currentSettings.category = key;
-    const categoryData = SEAF_CONFIG.CATEGORIES[key];
+    const cData = SEAF_CONFIG.CATEGORIES[key];
 
     Array.from(categoryGrid.children).forEach((btn, idx) => {
       btn.classList.toggle('active', Object.keys(SEAF_CONFIG.CATEGORIES)[idx] === key);
     });
 
     dynamicArea.style.display = 'block';
-
-    if (categoryData.hasDifficulty) {
+    
+    if (cData.hasDifficulty) {
       diffGroup.style.display = 'block';
       renderDifficulty();
     } else {
@@ -93,10 +88,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function renderDifficulty() {
     diffGrid.innerHTML = '';
+    // 문제 4 해결: 난이도 한 줄 배치 및 스타일
+    diffGrid.className = 'difficulty-row'; 
     SEAF_CONFIG.DIFFICULTIES.forEach(d => {
       const btn = document.createElement('div');
       btn.className = `tag-btn ${currentSettings.difficulty == d ? 'active' : ''}`;
-      btn.innerText = `${d}단`;
+      btn.innerText = d; // '단' 제외하여 공간 확보
       btn.onclick = () => {
         currentSettings.difficulty = d;
         renderDifficulty();
@@ -111,7 +108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tags = SEAF_CONFIG.CATEGORIES[key].tags || [];
     if (tags.length === 0) {
       subtagGrid.parentElement.style.display = 'none';
-      currentSettings.subTag = '';
       return;
     }
     subtagGrid.parentElement.style.display = 'block';
@@ -133,19 +129,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     const c = SEAF_CONFIG.CATEGORIES[currentSettings.category];
     const target = currentSettings.subTag || c.name;
     const diffText = currentSettings.difficulty ? `${currentSettings.difficulty}단` : '';
+    
     const title = SEAF_CONFIG.TEMPLATES.title
       .replace('{emoji}', c.emoji).replace('{target}', target).replace('{diff}', diffText)
       .replace(/\s+/g, ' ').trim();
+    
     customTitleInput.value = title;
     currentSettings.customTitle = title;
   }
 
-  saveBtn.addEventListener('click', () => {
+  // 문제 5 해결: 데이터 유효성 검사 및 저장 피드백
+  saveBtn.onclick = () => {
+    if (!steamInput.value.includes('steamcommunity.com')) {
+      showStatus("STEAM URL 확인 요망", "error");
+      return;
+    }
+
     currentSettings.steamUrl = steamInput.value;
+    currentSettings.isDetectionActive = detectionToggle.checked;
     currentSettings.customContent = customContentInput.value;
+
     chrome.storage.local.set({ seaf_settings: currentSettings }, () => {
-      statusEl.innerText = 'DEPLOYED';
-      setTimeout(() => { statusEl.innerText = ''; }, 2000);
+      showStatus("DEPLOYED", "success");
+      // 백그라운드에 즉시 알림 (선택 사항)
+      chrome.runtime.sendMessage({ type: "SETTINGS_UPDATED" });
     });
-  });
+  };
+
+  function showStatus(msg, type) {
+    statusEl.innerText = msg;
+    statusEl.className = type;
+    setTimeout(() => { statusEl.innerText = ""; }, 2500);
+  }
 });

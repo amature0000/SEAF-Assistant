@@ -1,6 +1,6 @@
 /**
  * Project SEAF - Global Style Sheet
- * 전역 변수 및 하단 푸터 스타일 추가
+ * 사용자 정의 스타일 복구 및 배경 워터마크 추가
  */
 
 :root {
@@ -23,23 +23,45 @@ body {
   font-family: "Segoe UI", "Roboto", sans-serif;
   display: flex;
   flex-direction: column;
+  position: relative; /* 워터마크 배치를 위해 추가 */
+  min-height: 400px;
+}
+
+/* 배경 워터마크 아이콘 추가 */
+body::before {
+  content: "";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-10%, -15%);
+  width: 190px;
+  height: 200px;
+  background-image: url('../icons/icon128.png');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.2; /* 투명도 낮게 설정 */
+  pointer-events: none;
+  z-index: -1;
 }
 
 .header-banner {
   background: var(--color-primary);
   color: #fff;
-  padding: 12px;
-  font-weight: bold;
+  padding: 8px;
+  font-size: 20px;
+  font-weight: 450;
   text-align: center;
   letter-spacing: 2px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.container { padding: 16px; flex: 1; }
+.container { padding: 16px; flex: 1; position: relative; z-index: 1; }
 .section { margin-bottom: 20px; }
 
 h3 {
   font-size: 14px;
+  font-weight: 500;
   color: var(--color-primary);
   text-transform: uppercase;
   border-left: 3px solid var(--color-primary);
@@ -110,7 +132,6 @@ input[type="text"], textarea {
   display: inline-block;
   width: 34px;
   height: 20px;
-  margin: 0 0 9px 0;
 }
 
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -141,5 +162,5 @@ input:checked + .slider:before { transform: translateX(14px); }
 input[type=range] {
   width: 100%;
   cursor: pointer;
-  accent-color: var(--color-primary) /* 원하는 색상으로 변경 */
+  accent-color: var(--color-primary);
 }
