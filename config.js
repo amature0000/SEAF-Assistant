@@ -22,7 +22,7 @@ const CONFIG = {
   CATEGORIES: {
     TERMINID: {
       name: "테르미니드",
-      emoji: "🪳",
+      emoji: "🪲",
       color: "#EAD033",
       tags: ["프레데터", "럽쳐", "글룸", "하이브월드", "하이브로드"],
       hasDifficulty: true
@@ -72,8 +72,15 @@ const CONFIG = {
    */
   DEFAULT_TEMPLATE: {
     title: "{emoji} {target} {diff}",
-    content: "☄️아래 버튼을 클릭해서 참여하세요!☄️\n"
-  }
+    // 이미지 버튼과 커스텀 텍스트를 포함한 본문 템플릿
+    content: `☄️아래 버튼을 클릭해서 참여하세요!☄️
+    <br><br>
+    {lobby_image_html}
+    <br><br>
+    {custom_content}
+    <br><br>
+    [SEAF Assistant를 통해 작성된 망호입니다]`
+    }
 };
 
 if (typeof window !== 'undefined') {
