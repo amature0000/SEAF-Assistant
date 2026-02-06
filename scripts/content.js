@@ -1,201 +1,87 @@
 /**
- * Project SEAF - Content Script
- * 1. 빠른 참여 버튼
- * 2. 툴바 버튼 및 자동 완성
- * 3. 본문 내 링크 이미지화
- * 4. 디시 네이티브 구조 활용 알림 (Native Stack)
+ * SEAF UI Injector - Content Script
+ * 모든 웹페이지의 우측 하단에 알림 스택을 생성합니다.
  */
 
-const SEAF_CONTENT = {
-  isWritePage: () => window.location.href.includes('board/write'),
-  isListPage: () => window.location.href.includes('board/lists'),
-  isViewPage: () => window.location.href.includes('board/view'),
-
-  enhanceListPage: function() {
-    const posts = document.querySelectorAll('.ub-content');
-    posts.forEach(post => {
-      if (post.hasAttribute('data-seaf-processed')) return;
-      const subjectTd = post.querySelector('.gall_subject');
-      const titleTd = post.querySelector('.gall_tit.ub-word');
-      if (subjectTd && subjectTd.innerText.trim() === '헬망호' && titleTd) {
-        const postLink = titleTd.querySelector('a')?.href;
-        if (!postLink) return;
-        post.setAttribute('data-seaf-processed', 'true');
-        fetch(postLink).then(r => r.text()).then(html => {
-          const match = html.match(/steam:\/\/joinlobby\/\d+\/\d+\/\d+/);
-          if (match && !titleTd.querySelector('.seaf-fast-join-btn')) {
-            const btn = document.createElement('button');
-            btn.className = 'seaf-fast-join-btn';
-            btn.innerText = '☄️참여';
-            btn.onclick = (e) => { e.preventDefault(); window.location.href = match[0]; };
-            titleTd.querySelector('a').after(btn);
-          }
-        }).catch(() => {});
-      }
+(function() {
+  // 1. 알림 컨테이너 생성 (없을 경우에만)
+  let container = document.getElementById('seaf-notification-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'seaf-notification-container';
+    // 인라인 스타일로 기본 위치 고정 (외부 CSS 간섭 최소화)
+    Object.assign(container.style, {
+      position: 'fixed',
+      bottom: '20px',
+      right: '20px',
+      zIndex: '2147483647', // 최상단 유지
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '10px',
+      pointerEvents: 'none' // 컨테이너 자체는 클릭 무시
     });
-  },
+    document.body.appendChild(container);
+  }
 
-  injectWriteAssistant: function() {
-    const toolbar = document.querySelector('.note-toolbar');
-    const breakPoint = document.querySelector('.note-btn-group.note-break');
-    if (!toolbar || !breakPoint || document.getElementById('seaf-auto-btn')) return;
-    const wrapper = document.createElement('div');
-    wrapper.className = 'note-btn-group note-mybutton';
-    wrapper.innerHTML = `<button type="button" id="seaf-auto-btn" class="note-btn" title="SEAF 망호 자동 완성"><b style="color:#41639C">☄️망호 자동 완성☄️</b></button>`;
-    toolbar.insertBefore(wrapper, breakPoint);
-    document.getElementById('seaf-auto-btn').onclick = () => this.handleAutoFill();
-  },
-
-  handleAutoFill: async function() {
-    const { seaf_settings: s } = await chrome.storage.local.get(['seaf_settings']);
-    const manghoLi = document.querySelector('li[data-val="헬망호"]');
-    if (manghoLi) manghoLi.click();
-
-    const titleInput = document.querySelector('input[name="subject"]');
-    if (titleInput) {
-      titleInput.value = (s?.customTitle && s.customTitle.trim() !== "") ? s.customTitle : "☄️ 민주주의 망호";
+  // 2. 메시지 리스너
+  chrome.runtime.onMessage.addListener((request) => {
+    if (request.type === "SEAF_NEW_LOBBY") {
+      createToast(request.title, request.link);
     }
+  });
 
-    const editor = document.querySelector('.note-editable');
-    if (editor) {
-      editor.innerHTML = "<p>스팀 서버에서 작전 정보를 수신 중...</p>";
-      if (s?.steamUrl) {
-        chrome.runtime.sendMessage({ type: "GET_LOBBY_LINK", url: s.steamUrl }, (response) => {
-          const lobbyLink = response?.link;
-          
-          let lobbyImageHtml = lobbyLink 
-            ? `
-              <div class="seaf-lobby-btn-wrap" style="text-align: center; margin: 20px 0; display: block !important;">
-                <a href="${lobbyLink}" 
-                  class="seaf-join-button" 
-                  style="
-                    display: inline-block !important;
-                    padding: 12px 30px !important;
-                    background-color: #41639C !important;
-                    background: #41639C !important;
-                    color: #ffffff !important;
-                    text-decoration: none !important;
-                    font-weight: bold !important;
-                    border-radius: 5px !important;
-                    font-size: 16px !important;
-                    border: none !important;
-                    cursor: pointer !important;
-                  ">
-                  ☄️ 즉시 참가하기 ☄️
-                </a>
-              </div>`
-            : `<p style="text-align:center;"><span style="color:red; font-weight:bold;">[로비 링크 확보 실패: 스팀 프로필이 비공개거나 게임 로비가 비공개입니다.]</span></p>`;
-          
-          const customContent = (s?.customContent && s.customContent.trim() !== "") ? s.customContent : "민주주의 전파에 즉시 동참하십시오.";
-
-          // [복구] SEAF_CONFIG.TEMPLATES.content 구조를 활용한 치환
-          if (typeof SEAF_CONFIG !== 'undefined' && SEAF_CONFIG.TEMPLATES) {
-            editor.innerHTML = SEAF_CONFIG.TEMPLATES.content
-              .replace('{custom_content}', customContent)
-              .replace('{lobby_image_html}', lobbyImageHtml);
-          } else {
-            // 가드 로직: config.js 로드 실패 시 기본 레이아웃
-            editor.innerHTML = `<div style="text-align:center;">${lobbyImageHtml}<br><p>${customContent}</p><br><p style="font-size:11px; color:#888;">Generated by SEAF Assistant v0.0.2</p></div>`;
-          }
-        });
-      }
-    }
-  },
-
-  convertLobbyLinks: function() {
-    const contentView = document.querySelector('.writing_view_box');
-    if (!contentView || contentView.hasAttribute('data-seaf-converted')) return;
-    const lobbyRegex = /steam:\/\/joinlobby\/\d+\/\d+\/\d+/g;
-    const originalHtml = contentView.innerHTML;
-    if (lobbyRegex.test(originalHtml)) {
-      contentView.innerHTML = originalHtml.replace(lobbyRegex, (match) => {
-        return `<div class="seaf-lobby-btn-wrap"><a href="${match}" class="seaf-join-button">☄️즉시 참가하기☄️</a></div>`;
-      });
-      contentView.setAttribute('data-seaf-converted', 'true');
-    }
-  },
-
-  /**
-   * 디시 네이티브 알림 컨테이너를 찾거나 생성하여 주입
-   */
-  showToast: function(title, postId) {
-    let container = document.querySelector('.alarmPopup.pop_wrap.alarm');
-    if (!container) {
-      container = document.createElement('div');
-      container.className = 'alarmPopup pop_wrap alarm';
-      container.style.cssText = "right: 30px; bottom: 30px; display: block !important; z-index: 10001;";
-      const comments = Array.from(document.body.childNodes).filter(node => node.nodeType === Node.COMMENT_NODE);
-      const targetComment = comments.find(c => c.textContent.includes('한줄 알림'));
-      if (targetComment && targetComment.nextSibling) {
-        targetComment.parentNode.insertBefore(container, targetComment.nextSibling);
-      } else {
-        document.body.appendChild(container);
-      }
-    }
-
+  // 3. 토스트 생성 함수
+  function createToast(title, link) {
     const toast = document.createElement('div');
-    toast.className = 'pop_content one_noticewrap seaf-native-toast';
-    toast.style.cssText = `
-      margin-top: 10px;
-      border: 2px solid #41639C !important;
-      background: #fff !important;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      position: relative;
-      overflow: hidden;
-      animation: seaf-slide-up 0.4s ease-out;
-    `;
+    toast.className = 'seaf-notify-toast';
+    
+    // 스타일 주입 (인라인 스타일을 사용하여 완벽 격리)
+    Object.assign(toast.style, {
+      width: '300px',
+      backgroundColor: '#1a1a1a',
+      color: '#ffffff',
+      padding: '15px',
+      borderRadius: '8px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+      fontFamily: 'sans-serif',
+      fontSize: '14px',
+      borderLeft: '5px solid #41639C',
+      pointerEvents: 'auto', // 토스트 내부 클릭 허용
+      opacity: '0',
+      transform: 'translateX(20px)',
+      transition: 'all 0.4s ease',
+      position: 'relative'
+    });
 
     toast.innerHTML = `
-      <div style="padding: 10px 35px 10px 12px;">
-        <div style="font-weight:bold; color:#41639C; font-size:13px; margin-bottom:4px;">☄️신규 망호 감지!☄️</div>
-        <a href="https://gall.dcinside.com/mgallery/board/view/?id=helldiversseries&no=${postId}" 
-           style="display:block; font-size:12px; color:#333; text-decoration:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:8px;"
-           class="one_notice_txt">
-           ${title}
-        </a>
-        <div style="text-align:right;">
-          <button class="seaf-toast-join-btn" style="background:#41639C; color:white; border:none; padding:4px 10px; border-radius:3px; font-size:11px; cursor:pointer; font-weight:bold;">
-            ⚡즉시 참여
-          </button>
-        </div>
+      <div style="font-weight: bold; margin-bottom: 5px; padding-right: 20px;">☄️ 새로운 망호 발견!</div>
+      <div style="font-size: 12px; color: #ccc; margin-bottom: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+        ${title}
       </div>
-      <button type="button" class="poply_close seaf-toast-close" style="top:8px; right:8px;"><span class="blind">닫기</span><em class="sp_img icon_blueclose"></em></button>
+      <div style="display: flex; gap: 8px;">
+        <a href="${link}" style="background: #41639C; color: white; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: bold;">즉시 참가</a>
+        <button class="seaf-close-btn" style="background: #444; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">닫기</button>
+      </div>
     `;
 
-    toast.querySelector('.seaf-toast-join-btn').onclick = (e) => {
-      e.preventDefault();
-      const viewUrl = `https://gall.dcinside.com/mgallery/board/view/?id=helldiversseries&no=${postId}`;
-      fetch(viewUrl).then(r => r.text()).then(html => {
-        const match = html.match(/steam:\/\/joinlobby\/\d+\/\d+\/\d+/);
-        if (match) window.location.href = match[0];
-      });
-    };
-
-    toast.querySelector('.seaf-toast-close').onclick = () => toast.remove();
     container.appendChild(toast);
 
+    // 애니메이션 효과 (등장)
     setTimeout(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(0)';
+    }, 10);
+
+    // 삭제 로직 (수동/자동)
+    const removeToast = () => {
       toast.style.opacity = '0';
       toast.style.transform = 'translateX(20px)';
-      toast.style.transition = 'all 0.5s ease';
-      setTimeout(() => toast.remove(), 500);
-    }, 6000);
-  },
+      setTimeout(() => toast.remove(), 400);
+    };
 
-  init: function() {
-    if (this.isListPage() || this.isViewPage()) {
-      this.enhanceListPage();
-      new MutationObserver(() => this.enhanceListPage()).observe(document.body, { childList: true, subtree: true });
-    }
-    if (this.isWritePage()) this.injectWriteAssistant();
-    if (this.isViewPage()) this.convertLobbyLinks();
+    toast.querySelector('.seaf-close-btn').onclick = removeToast;
     
-    chrome.runtime.onMessage.addListener((m) => {
-    if (m.type === "SHOW_SEAF_NOTIFICATION") {
-        this.showToast(m.title, m.postId);
-    }
-    });
+    // 5초 후 자동 삭제
+    setTimeout(removeToast, 5000);
   }
-};
-
-SEAF_CONTENT.init();
+})();
