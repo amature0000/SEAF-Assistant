@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentSettings.customContent = customContentInput.value;
 
     chrome.storage.local.set({ seaf_settings: currentSettings }, () => {
-      showStatus("DEPLOYED", "success");
+      showStatus("저장완료!", "success");
       // 통합된 background 알람 시스템에 신호 전달
       chrome.runtime.sendMessage({ type: "SETTINGS_UPDATED" });
     });
