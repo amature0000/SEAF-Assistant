@@ -408,26 +408,28 @@
 
 /* 빠른 참여 버튼 (목록 페이지) */
 .seaf-fast-join-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--seaf-color-primary);
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--seaf-color-primary) !important;
   color: white !important;
-  border: none;
-  border-radius: 3px;
-  font-size: 11px;
-  padding: 1px 6px;
-  margin-left: 8px;
-  cursor: pointer;
-  height: 18px;
-  vertical-align: middle;
-  font-weight: bold;
-  transition: background 0.2s;
+  border: none !important;
+  border-radius: 3px !important;
+  font-size: 11px !important;
+  padding: 2px 6px !important;
+  margin-left: 8px !important;
+  cursor: pointer !important;
+  height: auto !important;
+  line-height: normal !important;
+  vertical-align: middle !important;
+  font-weight: bold !important;
+  transition: background 0.2s !important;
   text-decoration: none !important;
+  box-sizing: border-box !important;
 }
 
 .seaf-fast-join-btn:hover {
-  background: var(--seaf-color-primary-hover);
+  background: var(--seaf-color-primary-hover) !important;
 }
 
 /* 본문 내 로비 참여 버튼 */
