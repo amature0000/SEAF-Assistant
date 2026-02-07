@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="../styles.css">
+</head>
+<body class="seaf-popup-body" style="overflow: hidden;">
+  <!-- 헤더 -->
+  <div class="seaf-header-banner">⚙️ SETTINGS ⚙️</div>
+  
+  <div class="seaf-container">
+    <!-- Auto Detection Section -->
+    <div class="seaf-section">
+      <div class="seaf-control-row">
+        <div class="seaf-section-title" style="margin: 0;">Auto Mangho Detection</div>
+        <label class="seaf-switch">
+          <input type="checkbox" id="seaf-detection-toggle">
+          <span class="seaf-slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Polling Interval Section -->
+    <div class="seaf-section">
+      <div class="seaf-control-row" style="margin-bottom: 8px;">
+        <span class="seaf-label-text">망호 자동 감지 주기</span>
+        <span id="seaf-polling-value" class="seaf-value-badge">5초</span>
+      </div>
+      <input type="range" id="seaf-polling-slider" class="seaf-range-slider" min="1" max="30" step="1" value="5">
+    </div>
+
+    <!-- Toast Duration Section -->
+    <div class="seaf-section">
+      <div class="seaf-control-row" style="margin-bottom: 8px;">
+        <span class="seaf-label-text">알림 지속 시간</span>
+        <span id="seaf-toast-duration-value" class="seaf-value-badge">6초</span>
+      </div>
+      <input type="range" id="seaf-toast-duration-slider" class="seaf-range-slider" min="3" max="30" step="1" value="6">
+    </div>
+
+    <!-- 단순 공백 -->
+    <div>
+      <p style="margin: 140px; display: flex;"></p>
+    </div>
+
+    <!-- 뒤로가기 버튼 -->
+    <button id="seaf-back-btn" class="seaf-btn" style="width: 100%; margin-top: 10px;">👈 돌아가기</button>
+  </div>
+
+  <!-- 푸터 -->
+  <div class="seaf-footer">
+    <div class="seaf-version-info" id="seaf-version-display">SEAF Assistant v1.0.0</div>
+    <div class="seaf-save-status" id="seaf-save-status"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

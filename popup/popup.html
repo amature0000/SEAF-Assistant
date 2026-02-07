@@ -2,82 +2,65 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <link rel="stylesheet" href="../styles/seaf_main.css">
-  <link rel="stylesheet" href="../styles/tags.css">
+  <link rel="stylesheet" href="../styles.css">
 </head>
-<body>
-  <div class="header-banner">🌏 SEAF ASSISTANT 🌎</div>
+<body class="seaf-popup-body">
+  <!-- 헤더 -->
+  <div class="seaf-header-banner">🌎 SEAF ASSISTANT 🌎</div>
   
-  <div class="container">
+  <div class="seaf-container">
     <!-- Steam Profile Section -->
-    <div class="section">
-      <seaf-h3>Steam Profile</seaf-h3>
-      <input type="seaf_text" id="steam-url" placeholder="https://steamcommunity.com/id/...">
+    <div class="seaf-section">
+      <div class="seaf-section-title">Steam Profile</div>
+      <input type="text" id="seaf-steam-url" class="seaf-input" placeholder="https://steamcommunity.com/id/...">
     </div>
 
-    <!-- Mission Category Section -->
-    <div class="section">
-      <seaf-h3>Mission Objects (제목 자동 완성 태그)</seaf-h3>
-      <div id="category-grid" class="category-grid"></div>
-    </div>
+    <!-- Mission Objects Section -->
+    <div class="seaf-section">
+      <div class="seaf-section-title">Mission Objects (제목 자동 완성 태그)</div>
+      
+      <!-- 카테고리 선택 -->
+      <div id="seaf-category-grid" class="seaf-category-grid" style="margin-bottom: 10px;"></div>
 
-    <!-- Dynamic Options (Difficulty & Special Operations) -->
-    <div id="dynamic-area" class="section" style="display:none;">
-      <div class="tag-group" id="difficulty-group">
-        <seaf-h3>Difficulty Level</seaf-h3>
-        <div id="difficulty-grid" class="tag-grid"></div>
+      <!-- Difficulty Level -->
+      <div id="seaf-difficulty-group" style="display:none; margin-bottom: 10px;">
+        <label class="seaf-label-text" style="display: block; margin-bottom: 5px;">Difficulty Level</label>
+        <div id="seaf-difficulty-grid" class="seaf-difficulty-grid"></div>
       </div>
-      <div class="tag-group" id="subtag-group" style="margin-top:10px;">
-        <seaf-h3>Specific Objects</seaf-h3>
-        <div id="subtag-grid" class="tag-grid"></div>
+
+      <!-- Specific Objects -->
+      <div id="seaf-subtag-group" style="display:none; margin-bottom: 10px;">
+        <label class="seaf-label-text" style="display: block; margin-bottom: 5px;">Specific Objects</label>
+        <div id="seaf-subtag-grid" class="seaf-tag-grid"></div>
+      </div>
+
+      <!-- Additional (추후 태그 추가 예정) -->
+      <div id="seaf-additional-group" style="display:none;">
+        <label class="seaf-label-text" style="display: block; margin-bottom: 5px;">Additional</label>
+        <div id="seaf-additional-grid" class="seaf-tag-grid"></div>
       </div>
     </div>
 
-    <!-- Preview Section -->
-    <div class="section">
-      <seaf-h3>Mission Details (선택 사항)</seaf-h3>
-      <input type="seaf_text" id="custom-title" placeholder="추가 제목">
-      <textarea type="seaf_text" id="custom-content" placeholder="본문 추가 내용" style="margin-top:8px; height:60px;"></textarea>
+    <!-- Mission Details Section -->
+    <div class="seaf-section">
+      <div class="seaf-section-title">Mission Details (선택 사항)</div>
+      <input type="text" id="seaf-custom-title" class="seaf-input" placeholder="추가 제목" style="margin-bottom: 8px;">
+      <textarea id="seaf-custom-content" class="seaf-textarea" placeholder="추가 본문 내용"></textarea>
     </div>
 
-    <!-- 실시간 감지 컨트롤 섹션 -->
-    <div class="section">
-      <div class="control-row">
-        <seaf-h3>Auto Mangho Detection</seaf-h3>
-        <label class="switch">
-          <input type="checkbox" id="detection-toggle">
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="control-row" style="margin-top: 10px;">
-        <span class="label-text">실시간 감지 주기</span>
-        <span id="polling-value" class="value-badge">5s</span>
-      </div>
-      <input type="range" id="polling-slider" min="1" max="30" step="1" value="5" style="margin-top: 5px;">
-    </div>
+    <!-- 저장 버튼 -->
+    <button id="seaf-save-btn" class="seaf-btn" style="width: 100%; margin-top: 10px;">💾 저장</button>
 
-    <button id="save-settings-btn" style="width:100%; padding:7px; padding-right:12px; align-items: center; background:var(--color-primary); color:white; border:none; border-radius:4px; font-size:16px; font-weight:500; letter-spacing:5px; cursor:pointer;">💾SAVE</button>
+    <!-- 설정 버튼 -->
+    <button id="seaf-settings-btn" class="seaf-btn" style="width: 100%; padding: 5px; margin-top: 7px; font-weight: 300; color: #ffffff; background-color: #53575e;">⚙️ 설정</button>
   </div>
 
-  <div class="footer">
-    <div class="version-info" id="version-display" style="font-size: 12px;">SEAF Assistant v0.0.3</div>
-    <div id="save-status"></div>
+  <!-- 푸터 -->
+  <div class="seaf-footer">
+    <div class="seaf-version-info" id="seaf-version-display">SEAF Assistant v1.0.0</div>
   </div>
 
-  <!-- --- TEST SYSTEM START (삭제 예정) --- -->
-  <div id="test-system-area" style="margin-top: 20px; padding: 10px; border-top: 2px dashed #ccc; background: #f9f9f9; font-family: monospace; font-size: 11px;">
-    <h3 style="margin: 0 0 10px 0; color: #666;">🛠 TEST LOGS</h3>
-    <div id="test-log-display" style="height: 75px; overflow-y: auto; background: #eee; padding: 5px; border: 1px solid #ddd; margin-bottom: 10px;">
-      대기 중...
-    </div>
-    <h3 style="margin: 0 0 5px 0; color: #666;">🔗 DETECTED LINKS</h3>
-    <div id="test-link-list" style="background: #eee; padding: 5px; border: 1px solid #ddd;">
-      발견된 링크 없음
-    </div>
-  </div>
-  <!-- --- TEST SYSTEM END --- -->
-
-  <script src="../config.js"></script>
+  <script src="../tags.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

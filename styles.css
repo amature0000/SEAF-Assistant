@@ -1,0 +1,459 @@
+/**
+ * Project SEAF - Unified Stylesheet
+ * 모든 클래스는 seaf- 접두사 사용 (디시 스타일 충돌 방지)
+ */
+
+/* 1. CSS 변수 (전역 테마) */
+:root {
+  --seaf-bg-main: #f0f0f0;
+  --seaf-bg-card: #e9e9f0;
+  --seaf-bg-input: #dcdce6;
+  --seaf-color-primary: #41639C;
+  --seaf-color-primary-hover: #5a87d1;
+  --seaf-color-primary-dim: rgba(65, 99, 156, 0.15);
+  --seaf-color-text-dark: #35373b;
+  --seaf-color-text-light: #53575e;
+  --seaf-color-border: #c0c0d0;
+  --seaf-radius: 4px;
+  --seaf-icon-url: url(''); /* popup.js에서 동적 설정 */
+}
+
+/* 2. Popup 전용 스타일 */
+
+/* Popup Body */
+.seaf-popup-body {
+  width: 355px;
+  min-height: 600px;
+  margin: 0;
+  background-color: var(--seaf-bg-main);
+  color: var(--seaf-color-text-dark);
+  font-family: "Segoe UI", "Roboto", sans-serif;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 400px;
+}
+
+/* 배경 워터마크 */
+.seaf-popup-body::before {
+  content: "";
+  position: fixed;
+  right: 20px;
+  bottom: 10px;
+  width: 200px;
+  height: 200px;
+  background-image: var(--seaf-icon-url);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 헤더 배너 */
+.seaf-header-banner {
+  background: var(--seaf-color-primary);
+  color: #fff;
+  padding: 8px;
+  font-size: 20px;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 컨테이너 */
+.seaf-container {
+  padding: 16px;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* 섹션 */
+.seaf-section {
+  margin-bottom: 20px;
+}
+
+/* 섹션 제목 */
+.seaf-section-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--seaf-color-primary);
+  text-transform: uppercase;
+  border-left: 3px solid var(--seaf-color-primary);
+  padding-left: 5px;
+  margin: 0 0 10px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 푸터 */
+.seaf-footer {
+  padding: 10px 16px;
+  background: #e2e2ed;
+  border-top: 1px solid var(--seaf-color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.seaf-version-info {
+  font-size: 10px;
+  color: #888;
+  font-family: monospace;
+}
+
+.seaf-save-status {
+  font-size: 11px;
+  color: var(--seaf-color-primary);
+  font-weight: bold;
+}
+
+/* 컨트롤 패널 */
+.seaf-control-panel {
+  background: var(--seaf-bg-card);
+  padding: 12px;
+  border-radius: var(--seaf-radius);
+  border: 1px solid var(--seaf-color-border);
+}
+
+.seaf-control-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.seaf-label-text {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--seaf-color-text-light);
+}
+
+.seaf-value-badge {
+  font-size: 10px;
+  background: var(--seaf-color-primary);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+
+/* 3. 기본 컴포넌트 (공통) */
+
+/* 기본 버튼 */
+.seaf-btn {
+  background: var(--seaf-color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--seaf-radius);
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.seaf-btn:hover {
+  background: var(--seaf-color-primary-hover);
+}
+
+/* 인풋 필드 */
+.seaf-input,
+.seaf-textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--seaf-color-border);
+  border-radius: var(--seaf-radius);
+  background: var(--seaf-bg-input);
+  box-sizing: border-box;
+  font-size: 12px;
+  font-family: inherit;
+}
+
+.seaf-textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+/* 토글 스위치 */
+.seaf-switch {
+  position: relative;
+  display: inline-block;
+  width: 34px;
+  height: 20px;
+}
+
+.seaf-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.seaf-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.seaf-slider:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+.seaf-switch input:checked + .seaf-slider {
+  background-color: var(--seaf-color-primary);
+}
+
+.seaf-switch input:checked + .seaf-slider:before {
+  transform: translateX(14px);
+}
+
+/* 슬라이더 */
+.seaf-range-slider {
+  width: 100%;
+  cursor: pointer;
+  accent-color: var(--seaf-color-primary);
+}
+
+/* 4. 태그 시스템 (카테고리/난이도) */
+
+/* 카테고리 그리드 (5열) */
+.seaf-category-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+}
+
+.seaf-category-btn {
+  background: var(--seaf-bg-card);
+  border: 1px solid var(--seaf-color-border);
+  padding: 4px 2px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: var(--seaf-radius);
+  font-size: 10px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.seaf-category-btn.seaf-active {
+  border-color: var(--seaf-color-primary);
+  background: var(--seaf-color-primary-dim);
+  color: var(--seaf-color-primary);
+}
+
+/* 동적 영역 */
+.seaf-dynamic-area {
+  margin-top: 12px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px dashed var(--seaf-color-border);
+  border-radius: var(--seaf-radius);
+}
+
+/* 난이도 그리드 (10열) */
+.seaf-difficulty-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 2px;
+  margin-top: 5px;
+}
+
+/* 일반 태그 그리드 */
+.seaf-tag-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+/* 태그 버튼 */
+.seaf-tag-btn {
+  padding: 5px 8px;
+  background: #fff;
+  border: 1px solid var(--seaf-color-border);
+  border-radius: 2px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+/* 난이도 버튼 (더 좁게) */
+.seaf-difficulty-grid .seaf-tag-btn {
+  padding: 5px 0;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.seaf-tag-btn.seaf-active {
+  background: var(--seaf-color-primary);
+  color: white;
+  border-color: var(--seaf-color-primary);
+}
+
+/* 5. Content Script 전용 (디시 페이지 주입) */
+
+/* 토스트 알림 컨테이너 */
+.seaf-toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: none;
+}
+
+/* 토스트 아이템 */
+.seaf-toast-item {
+  width: 320px;
+  background-color: var(--seaf-bg-main);
+  color: var(--seaf-color-text-dark);
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+  font-family: sans-serif;
+  font-size: 14px;
+  border-left: 5px solid var(--seaf-color-primary);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.4s ease;
+}
+
+.seaf-toast-item.seaf-show {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* 토스트 헤더 */
+.seaf-toast-header {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: var(--seaf-color-primary);
+}
+
+/* 토스트 본문 */
+.seaf-toast-body {
+  display: block;
+  color: var(--seaf-color-text-dark);
+  text-decoration: none;
+  font-size: 13px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.seaf-toast-body:hover {
+  color: #fff;
+}
+
+/* 토스트 버튼 영역 */
+.seaf-toast-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.seaf-toast-btn {
+  flex: 1;
+  background: var(--seaf-color-primary);
+  color: white;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.seaf-toast-btn:hover {
+  background: var(--seaf-color-primary-hover);
+}
+
+.seaf-toast-close-btn {
+  background: #333;
+  color: #ccc;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.seaf-toast-close-btn:hover {
+  background: #444;
+}
+
+/* 빠른 참여 버튼 (목록 페이지) */
+.seaf-fast-join-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--seaf-color-primary);
+  color: white !important;
+  border: none;
+  border-radius: 3px;
+  font-size: 11px;
+  padding: 1px 6px;
+  margin-left: 8px;
+  cursor: pointer;
+  height: 18px;
+  vertical-align: middle;
+  font-weight: bold;
+  transition: background 0.2s;
+  text-decoration: none !important;
+}
+
+.seaf-fast-join-btn:hover {
+  background: var(--seaf-color-primary-hover);
+}
+
+/* 본문 내 로비 참여 버튼 */
+.seaf-lobby-btn-wrap {
+  text-align: center;
+  margin: 2px 0;
+}
+
+.seaf-join-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--seaf-color-primary);
+  color: #ffffff !important;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 12px 24px;
+  border: 2px solid var(--seaf-color-primary-dim);
+  border-radius: 8px;
+  cursor: pointer;
+  text-decoration: none !important;
+  transition: transform 0.2s, background-color 0.2s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.seaf-join-button:hover {
+  background-color: var(--seaf-color-primary-hover);
+  transform: scale(1.03);
+}
