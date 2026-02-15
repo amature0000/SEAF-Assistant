@@ -25,7 +25,7 @@ async function setupAlarm() {
 }
 
 /**
- * 게시글 상세 페이지에서 Steam 로비 링크 추출
+ * 게시글 id로부터 Steam 로비 링크 추출
  */
 async function extractLobbyLink(postId) {
   try {
@@ -38,15 +38,7 @@ async function extractLobbyLink(postId) {
     if (lobbyMatch) {
       return lobbyMatch[0];
     }
-    
-    // Steam 프로필 URL에서 로비 링크 추출
-    const profileMatch = html.match(/https?:\/\/steamcommunity\.com\/(id|profiles)\/[^\s"<>]+/);
-    if (profileMatch) {
-      const profileUrl = profileMatch[0];
-      const lobbyLink = await fetchSteamLobby(profileUrl);
-      if (lobbyLink) return lobbyLink;
-    }
-    
+    // deprecated: Steam 프로필 URL에서 로비 링크 추출 - 헬망호 양식과 맞지 않음
     return null;
   } catch (error) {
     console.error(`[SEAF] 로비 링크 추출 실패 (${postId}):`, error);
@@ -120,10 +112,9 @@ async function performDetection() {
 
     // 신규 게시글 필터링 (ID가 더 큰 것만)
     const newPosts = posts.filter(p => p.id > lastSeenPostId);
-    
+    console.log(`[SEAF] 신규 게시글 ${newPosts.length}개 발견`);
+
     if (newPosts.length > 0) {
-      console.log(`[SEAF] 신규 게시글 ${newPosts.length}개 발견`);
-      
       // 오래된 것부터 처리
       for (const post of newPosts.reverse()) {
         await processNewPost(post, seaf_settings);
@@ -145,18 +136,7 @@ async function performDetection() {
 async function processNewPost(post, settings) {
   const { id, title } = post;
   
-  console.log(`[SEAF] 게시글 처리 시작: [${id}] ${title}`);
-  
-  // 로비 링크 추출
-  const lobbyLink = await extractLobbyLink(id);
-  
-  // 로비 링크가 없으면 알림 안 보냄
-  if (!lobbyLink) {
-    console.log(`[SEAF] 로비 링크 없음, 알림 스킵: [${id}] ${title}`);
-    return;
-  }
-  
-  console.log(`[SEAF] 로비 링크 발견: ${lobbyLink}`);
+  console.log(`[SEAF] 새 게시글 발견: ${id}`);
   
   // 모든 디시 탭에 알림 전송
   const tabs = await chrome.tabs.query({ 
@@ -164,18 +144,17 @@ async function processNewPost(post, settings) {
   });
   
   for (const tab of tabs) {
+    console.log(`[SEAF] ${tab.id} 탭에 알림 전송: [${id}] ${title}`);
     chrome.tabs.sendMessage(tab.id, {
       type: "SEAF_NEW_POST",
       postId: id,
       title: title,
-      lobbyLink: lobbyLink,
+      lobbyLink: 1,
       toastDuration: (settings.toastDuration || 6) * 1000 // 초 → 밀리초 변환
     }).catch(() => {
-      // content script 로드 안 된 탭 무시
+      console.log(`[SEAF] ${tab.id} 전송 실패`);
     });
   }
-  
-  console.log(`[SEAF] 알림 전송 완료: [${id}] ${title}`);
 }
 
 /**
