@@ -34,7 +34,7 @@ async function extractLobbyLink(postId) {
     const html = await response.text();
     
     // steam://joinlobby 직접 링크 찾기
-    const lobbyMatch = html.match(/steam:\/\/joinlobby\/\d+\/\d+\/\d+/);
+    const lobbyMatch = html.match(/steam:\/\/joinlobby\/\d+\/\d+/);
     if (lobbyMatch) {
       return lobbyMatch[0];
     }
