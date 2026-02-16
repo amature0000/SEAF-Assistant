@@ -4,6 +4,7 @@
  */
 
 const MANGHO_LIST_URL = "https://gall.dcinside.com/mgallery/board/lists/?id=helldiversseries&sort_type=N&search_head=60";
+const DEADLINE = 5 * 60 * 1000; // 5분
 
 let lastSeenPostId = null;
 
@@ -90,14 +91,15 @@ async function performDetection() {
     const html = await response.text();
     
     // 게시글 파싱 (공지 제외)
-    const postRegex = /<tr[^>]*data-no="(\d+)"[^>]*>[\s\S]*?<td class="gall_tit[^>]*>[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/g;
+    const postRegex = /<tr[^>]*data-no="(\d+)"[^>]*>[\s\S]*?<td class="gall_tit[^>]*>[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>[\s\S]*?<td class="gall_date" title="([^"]+)"/g;
     const matches = [...html.matchAll(postRegex)];
     
     const posts = matches
       .filter(m => !m[0].includes('icon_notice') && !m[0].includes('icon_fnews'))
       .map(m => ({
         id: parseInt(m[1]),
-        title: m[2].replace(/<[^>]*>?/gm, '').trim()
+        title: m[2].replace(/<[^>]*>?/gm, '').trim(),
+        fullDateStr: m[3]
       }));
 
     if (posts.length === 0) {
@@ -111,8 +113,20 @@ async function performDetection() {
       return;
     }
 
-    // 신규 게시글 필터링 (ID가 더 큰 것만)
-    const newPosts = posts.filter(p => p.id > lastSeenPostId);
+    const now = Date.now();
+    // 신규 게시글 필터링 
+    const newPosts = posts.filter(p => {
+      // ID가 더 큰 것만
+      const isNew = p.id > lastSeenPostId;
+      // 최근 n분 이내
+      let isRecent = true;
+      if (p.fullDateStr) {
+        const postTime = new Date(p.fullDateStr.replace(/-/g, '/')).getTime();
+        isRecent = (now - postTime < DEADLINE);
+      }
+      return isNew && isRecent;
+    });
+
     console.log(`[SEAF] 신규 게시글 ${newPosts.length}개 발견`);
 
     if (newPosts.length > 0) {
@@ -168,6 +182,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  // deprecated
   if (request.type === "RESET_LAST_ID") {
     console.log(`[SEAF] lastSeenPostId 초기화됨`);
     lastSeenPostId = null;

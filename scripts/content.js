@@ -236,10 +236,10 @@ const SEAF_CONTENT = {
    * 초기화
    */
   init: function() {
-    // 주입 시 background.js의 lastSeenPostd를 초기화
-    if (this.isListPage()) {
-      chrome.runtime.sendMessage({ type: "RESET_LAST_ID" });
-    }
+    // // 주입 시 background.js의 lastSeenPostd를 초기화
+    // if (this.isListPage()) {
+    //   chrome.runtime.sendMessage({ type: "RESET_LAST_ID" });
+    // }
     // 목록 페이지
     if (this.isListPage() || this.isViewPage()) {
       this.enhanceListPage();
