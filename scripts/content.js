@@ -236,9 +236,14 @@ const SEAF_CONTENT = {
    * 초기화
    */
   init: function() {
+    // 주입 시 background.js의 lastSeenPostd를 초기화
+    if (this.isListPage()) {
+      chrome.runtime.sendMessage({ type: "RESET_LAST_ID" });
+    }
     // 목록 페이지
     if (this.isListPage() || this.isViewPage()) {
       this.enhanceListPage();
+      // NOTE: MutationObserver는 dcinside에서 작동하지 않을 것으로 보임. 호환성을 위해 삭제하지 않았음
       new MutationObserver(() => this.enhanceListPage())
         .observe(document.body, { childList: true, subtree: true });
     }

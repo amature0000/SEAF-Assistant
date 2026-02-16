@@ -35,6 +35,7 @@ async function extractLobbyLink(postId) {
     
     // steam://joinlobby 직접 링크 찾기
     const lobbyMatch = html.match(/steam:\/\/joinlobby\/\d+\/\d+/);
+    // console.log(`[SEAF] 로비 링크 추출 시도 (${postId}):`, lobbyMatch[0]);
     if (lobbyMatch) {
       return lobbyMatch[0];
     }
@@ -167,6 +168,11 @@ chrome.alarms.onAlarm.addListener((alarm) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.type === "RESET_LAST_ID") {
+    console.log(`[SEAF] lastSeenPostId 초기화됨`);
+    lastSeenPostId = null;
+  }
+
   if (request.type === "SETTINGS_UPDATED") {
     setupAlarm();
   }
